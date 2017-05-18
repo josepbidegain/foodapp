@@ -80,6 +80,7 @@ class ClientController extends Controller
     public function showRestaurant($id,$name){
         
         if ( !session(\Auth::user()->id . "-cart") )
+            \Log::info('-->Sesion creada');
             session(\Auth::user()->id . "-cart" , true);
 
         //\Config::set('constants.cart_initialized', \Auth::user()->id . "-cart" );
@@ -108,33 +109,27 @@ class ClientController extends Controller
 
             $restaurant_id = $request->restaurant_id;
 
-            if ( !$this->isCartInitialized($restaurant_id) ){
-                $this->client->set($this->session_master, true);    
+            $array_prods = array();
+            if ( !\Session::get("restaurant-".$restaurant_id) ){
+                \Session::put("restaurant-".$restaurant_id, $array_prods);
             }
-
-            $prod = $request->product_id;
-            $count = $request->number;
-            $total = $count;
-
-            $connection = new \Predis\Client();
-            //$array_prods = json_decode( $this->client->get( $this->session_master.":products") );
-            $array_prods = json_decode( session($restaurant_id . "-products") );
             
-            if ($array_prods && in_array($prod, array_keys($array_prods)) ){
-                $total = $array_prods[$prod] + count;
+            $prod  = $request->product_id;
+            $count = $request->number;
+
+            $session_prods = \Session::get("restaurant-".$restaurant_id);
+            
+            if ( array_key_exists($prod, $session_prods) ){
+                $session_prods[$prod] += $count;
+            }else{
+                $session_prods[$prod] = $count;
             }
 
-            $array_prods[$prod] = $total;
-
-        
-            session( $restaurant_id . "-products",   
-                                json_encode(array(
-                                    $array_prods
-                                    )
-                                )
-                            );
-            //\Log::info($connection->get( $this->session_master.':products') );
-            return json_encode( array("data"=>$array_prods) );    
+            \Session::put("restaurant-".$restaurant_id, $session_prods);
+            
+            $product_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
+            
+            return json_encode( array("data"=>$session_prods,"products"=>$product_cart) );    
         }
 
         return redirect('/');
