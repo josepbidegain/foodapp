@@ -79,15 +79,13 @@ class ClientController extends Controller
 
     public function showRestaurant($id,$name){
         
-        if ( !session(\Auth::user()->id . "-cart") )
-            \Log::info('-->Sesion creada');
-            session(\Auth::user()->id . "-cart" , true);
-
-        //\Config::set('constants.cart_initialized', \Auth::user()->id . "-cart" );
+        $products_cart = array();
+        if ( $session_prods = \Session::get("restaurant-".$id) ){
+            $products_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
+        }
+        
         $restaurant = \App\Restaurant::find($id);        
         $products = \App\Product::where('restaurant_id',$id)->get();
-
-        $products_cart = $this->getProductsFromSession($id);
 
         return view('client.showRestaurant',compact('restaurant','products','products_cart'));
     }
@@ -127,9 +125,9 @@ class ClientController extends Controller
 
             \Session::put("restaurant-".$restaurant_id, $session_prods);
             
-            $product_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
+            $products_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
             
-            return json_encode( array("data"=>$session_prods,"products"=>$product_cart) );    
+            return json_encode( array("data"=>$session_prods,"products"=>$products_cart) );    
         }
 
         return redirect('/');
@@ -138,23 +136,26 @@ class ClientController extends Controller
 
     public function remove_product_from_cart(Request $request){
         
-        if ( $this->isCartInitialized() ){
-            $this->client->del($this->session_master);            
+        if ($request->ajax()){
+
+            $product_id = $request->prod_id;
+            $restaurant_id = $request->restaurant_id;
+
+            $array_prods = array();
+            if ( ! $session_prods = \Session::get("restaurant-".$restaurant_id) ){
+                return json_encode(array("error"=>true,"message"=>"Session expired"));
+            }
+
+            if ( array_key_exists($product_id, $session_prods) ){
+                unset($session_prods[$product_id]);
+            }
+
+            \Session::put("restaurant-".$restaurant_id, $session_prods);
+            
+            $product_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
+            
+            return json_encode( array("data"=>$session_prods,"products"=>$product_cart) );
         }
-
-        $prod = $request->product_id;
-        $count = $request->number;        
-
-        if ( $this->client->get($prod) !== null ){
-
-            $this->client->del($prod);
-            $total = $client->get($prod) - $count;
-
-        }
-
-        $this->client->set($prod, $total);
-        
-        return json_encode( array("product"=>$prod, "count"=>$total) );
     }
 
     public function manage_product_from_cart(Request $request){

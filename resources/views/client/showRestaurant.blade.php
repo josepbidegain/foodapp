@@ -17,7 +17,7 @@
 					<p>{{ $p->title }}</p> 
 					<p>{{ $p->price }}</p>
 					<p>{{ $p->description }}</p>
-					<input type="number" min="1" id="prod-count-{{$p->id}}">
+					<input type="number" value="1" min="1" id="prod-count-{{$p->id}}">
 					<button class="add-product-btn">agregar</button>
 				</div>
 				<br>

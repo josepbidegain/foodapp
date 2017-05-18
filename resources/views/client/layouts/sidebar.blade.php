@@ -7,14 +7,17 @@
                 <div class="panel-body">
                     @if( count($products_cart) )
                         <div id="cart">
-                        @foreach ($products_cart as $product)
-                            {{ $product->title }} <br>
-                        @endforeach
-                            
+                            <ul>
+                            @foreach ($products_cart as $product)
+                                <li>
+                                    <input type="number" value="{{$product->id}}" /> {{$product->title}} ( {{$product->description}} ) {{$product->price}} 
+                                    <button prod-id="{{$product->id}}" class='removeProd'>x</button>
+                                </li>
+                            @endforeach
+                            </ul>
                         </div>
-                        muestro productos
                     @else
-                        <div id="cart">vacio</div>
+                        <div id="cart">Realiza tu pedido</div>
                     @endif
                 </div>
             </div>

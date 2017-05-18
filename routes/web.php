@@ -54,8 +54,7 @@ Route::group(['middleware' => 'client'], function () {
 	Route::get('/profile/{id}/favorites', 'ClientController@showFavorites');
 
 	Route::post('/add-product-to-cart', 'ClientController@add_product_to_cart');
-
-	
+	Route::post('/remove-product-from-cart', 'ClientController@remove_product_from_cart');	
 	
 
 });
