@@ -9,7 +9,7 @@
             <div class="panel panel-default">
                 
                 <div class="panel-body">
-                <button id="showCreateForm" class="success">Create</button>
+                <button id="btnShowCreateForm" class="success">Create</button>
                 
                 <div id="createContainer" style="display: none;">
 					@include('admin.client.create')

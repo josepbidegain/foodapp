@@ -78,16 +78,31 @@ class ClientController extends Controller
     }
 
     public function showRestaurant($id,$name){
-        
+        $now = Carbon\Carbon::now()->toDateString(); dd($now);
         $products_cart = array();
         if ( $session_prods = \Session::get("restaurant-".$id) ){
             $products_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
         }
-        
+        \Log::info("-->AA: ".var_export($session_prods,1));
         $restaurant = \App\Restaurant::find($id);        
         $products = \App\Product::where('restaurant_id',$id)->get();
+        
+        //$have_discount = $restaurant->getActiveDiscount();
+        //\App::Discount::where('restaurant_id', $id)->where('start_date' '<=', $now)->where('end_date', '>=', $now);
 
-        return view('client.showRestaurant',compact('restaurant','products','products_cart'));
+        $subTotal=0;
+        foreach ( $products_cart as $p ){
+            $p->count = $session_prods[$p->id];
+            $p->totalPrice = $session_prods[$p->id] * $p->price;
+            $subTotal += $p->totalPrice;
+            /*
+            $discount = \App\Promotion::where('restaurant_id',$id)->where('product_id',$p->id);
+            $p->discount = $discount;*/
+        }   
+        $mainAddress = \Auth::user()->address; 
+        $otherAddress= \App\Address::where('user_id', \Auth::user()->id)->get();
+        
+        return view('client.showRestaurant',compact('restaurant','products','products_cart', 'mainAddress', 'otherAddress', 'subTotal', 'have_discount'));
     }
 
 
@@ -106,16 +121,14 @@ class ClientController extends Controller
         if ($request->ajax()){
 
             $restaurant_id = $request->restaurant_id;
-
-            $array_prods = array();
-            if ( !\Session::get("restaurant-".$restaurant_id) ){
-                \Session::put("restaurant-".$restaurant_id, $array_prods);
-            }
-            
             $prod  = $request->product_id;
             $count = $request->number;
-
-            $session_prods = \Session::get("restaurant-".$restaurant_id);
+            
+            $array_prods = array();
+            
+            if ( ! $session_prods = \Session::get("restaurant-".$restaurant_id) ){
+                \Session::put("restaurant-".$restaurant_id, $array_prods);
+            }
             
             if ( array_key_exists($prod, $session_prods) ){
                 $session_prods[$prod] += $count;
@@ -125,9 +138,18 @@ class ClientController extends Controller
 
             \Session::put("restaurant-".$restaurant_id, $session_prods);
             
-            $products_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
+            $products_cart = \App\Product::whereIn("id",array_keys($session_prods))->get();
+
+            $subTotal = 0;
+
+            foreach ( $products_cart as $prod ){
+                $subTotal += ( $prod->price * $session_prods[$prod->id]);    
+            }
             
-            return json_encode( array("data"=>$session_prods,"products"=>$products_cart) );    
+            $mainAddress = \Auth::user()->address; 
+            $otherAddress= \App\Address::where('user_id', \Auth::user()->id)->get();
+
+            return json_encode( array("data"=>$session_prods,"products"=>$products_cart, "subTotal"=>$subTotal, "mainAddress"=>$mainAddress, "otherAddress"=>$otherAddress ) );    
         }
 
         return redirect('/');
@@ -141,32 +163,79 @@ class ClientController extends Controller
             $product_id = $request->prod_id;
             $restaurant_id = $request->restaurant_id;
 
-            $array_prods = array();
             if ( ! $session_prods = \Session::get("restaurant-".$restaurant_id) ){
                 return json_encode(array("error"=>true,"message"=>"Session expired"));
             }
 
-            if ( array_key_exists($product_id, $session_prods) ){
-                unset($session_prods[$product_id]);
+            if ( $product_id != null ){
+                if ( array_key_exists($product_id, $session_prods) ){
+                    unset($session_prods[$product_id]);
+                }    
+            }else{ //delete session with Remove ALL
+                unset($session_prods);
+                $session_prods = array();
             }
+            
 
             \Session::put("restaurant-".$restaurant_id, $session_prods);
             
-            $product_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
+            $products_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
             
-            return json_encode( array("data"=>$session_prods,"products"=>$product_cart) );
+            $subTotal = 0;
+
+            foreach ( $products_cart as $prod ){
+                $subTotal += ( $prod->price * $session_prods[$prod->id]);    
+            }
+            
+            $mainAddress = \Auth::user()->address; 
+            $otherAddress= \App\Address::where('user_id', \Auth::user()->id)->get();
+
+            return json_encode( array("data"=>$session_prods,"products"=>$products_cart, "subTotal"=>$subTotal, "mainAddress"=>$mainAddress, "otherAddress"=>$otherAddress ) );
+            
         }
+
+        return redirect('/');
     }
 
     public function manage_product_from_cart(Request $request){
-        $prod = $request->product_id;
-        $count = $request->number;        
+        
+        if ($request->ajax()){
+
+            $restaurant_id = (int)$request->restaurant_id;
+            $product_id = (int)$request->product_id;
+            $count = (int)$request->number;  
+
+            if ( ! $session_prods = \Session::get("restaurant-".$restaurant_id) ){
+                return json_encode(array("error"=>true,"message"=>"Session expired"));
+            }
+
+            if ( $product_id != null && $count != null){
+                if ( array_key_exists($product_id, $session_prods) ){
+                    $session_prods[$product_id] = $count;
+                }    
+            }else{
+                return json_encode(array("error"=>true,"message"=>"Bad parameters"));
+            }
             
-        if ( $this->isCartInitialized() ){
-            $this->client->set($prod, $count);            
+
+            \Session::put("restaurant-".$restaurant_id, $session_prods);
+            
+            $products_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
+            
+            $subTotal = 0;
+
+            foreach ( $products_cart as $prod ){
+                $subTotal += ( $prod->price * $session_prods[$prod->id]);    
+            }
+            
+            $mainAddress = \Auth::user()->address; 
+            $otherAddress= \App\Address::where('user_id', \Auth::user()->id)->get();
+
+            return json_encode( array("data"=>$session_prods,"products"=>$products_cart, "subTotal"=>$subTotal, "mainAddress"=>$mainAddress, "otherAddress"=>$otherAddress ) );
+
         }
 
-        return json_encode( array("product"=>$prod, "count"=>$count) );
+        return redirect('/');
     }
 
 }

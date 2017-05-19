@@ -21,7 +21,9 @@ class CreateRestaurantsTable extends Migration
             $table->integer('category_id')->nullable();                       
             $table->string('name');
             $table->string('slug');
-            $table->string('address');            
+            $table->string('address');
+            $table->string('open_hour')->nullable();
+            $table->string('close_hour')->nullable();
             $table->string('phone');
             $table->string('city');
             $table->string('zip')->nullable();            

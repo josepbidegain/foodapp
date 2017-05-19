@@ -32,6 +32,6 @@
 <hr>
 
 <div id="sidebar" class="col-md-4">
-	@include('client.layouts.sidebar')
+	@include('client.layouts.cart')
 </div>
 @endsection

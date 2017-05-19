@@ -55,6 +55,7 @@ Route::group(['middleware' => 'client'], function () {
 
 	Route::post('/add-product-to-cart', 'ClientController@add_product_to_cart');
 	Route::post('/remove-product-from-cart', 'ClientController@remove_product_from_cart');	
+	Route::post('/manage-product-from-cart', 'ClientController@manage_product_from_cart');	
 	
 
 });

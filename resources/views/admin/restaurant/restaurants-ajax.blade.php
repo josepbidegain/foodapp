@@ -1,6 +1,10 @@
 @foreach ($restaurants as $restaurant)
   <tr>
-  	<td>{{ $restaurant->id }}</td>
+  	<td>
+      <a href="/admin/restaurants/{{ $restaurant->id }}/edit">
+      {{ $restaurant->id }}
+      </a>
+    </td>
     <td>{{ $restaurant->name }}</td>       
     <td>{{ $restaurant->user->lastname }}</td>
     <td>{{ $restaurant->phone }}</td>

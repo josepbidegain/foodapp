@@ -1,14 +1,14 @@
 $( document ).ready(function() {
     console.log( "ready!" );
     
-    $('#showCreateForm').click(function(){
+    $(document).on("click", '#btnShowCreateForm', function(){
         $("#createContainer").fadeIn('slow');
-        $("#showCreateForm").hide();
+        $("#btnShowCreateForm").hide();
     });
 
-    $('#cancelButton').click(function(){
-        $("#createContainer").fadeOut();
-        $("#showCreateForm").show();
+    $(document).on("click","#cancelButton", function(){
+        $("#createContainer").hide();
+        $("#btnShowCreateForm").show();
     })
     
 
@@ -17,7 +17,7 @@ $( document ).ready(function() {
     });
     
 
-    $("#createClientForm").submit(function(event){
+    $(document).on("submit", "#createClientForm", function(event){
         event.preventDefault();
         
         $.ajax({
@@ -28,7 +28,7 @@ $( document ).ready(function() {
             success : function(response){                
                 $("#createClientForm").fadeOut("slow");
                 $("#success_create").fadeIn().fadeOut(3000);
-                $("#showCreateForm").show();
+                $("#btnShowCreateForm").show();
                 $("#data-clients").html(response.data);
             },
             error : function(response){
@@ -39,7 +39,7 @@ $( document ).ready(function() {
         
     });
 
-    $("#createRestaurantForm").submit(function(event){
+    $(document).on("submit", "#createRestaurantForm", function(event){
         event.preventDefault();
         
         var token =  $('#createRestaurantForm').find( 'input[name=_token]' ).val();
@@ -60,7 +60,7 @@ $( document ).ready(function() {
             success : function(response){                
                 $("#createRestaurantForm").fadeOut("slow");
                 $("#success_create").fadeIn().fadeOut(3000);
-                $("#showCreateForm").show();
+                $("#btnShowCreateForm").show();
                 $("#data-restaurants").html(response.data);
             },
             error : function(response){
@@ -71,7 +71,8 @@ $( document ).ready(function() {
         
     });
 
-    $("#createProductForm").submit(function(event){
+    //OK
+    $(document).on("submit", "#createProductForm",function(event){
         event.preventDefault();
         
         $.ajax({
@@ -80,22 +81,29 @@ $( document ).ready(function() {
             dataType: 'json',
             data : $("#createProductForm").serialize(),
             success : function(response){                
-                $("#createProductForm").fadeOut("slow");
+                $("#createContainer").fadeOut("slow");
+                $("#btnShowCreateForm").fadeIn();
+
+                $("#createProductForm").find("input[type=text], textarea").val("");
+                $("#createProductForm").find("select").val("-1");
+                $("#categories_restaurant").html("");
+                $("#categories_container").hide();
+                
                 $("#success_create").fadeIn().fadeOut(3000);
-                $("#showCreateForm").show();
                 $("#data-products").html(response.data);
+                
             },
             error : function(response){
                 $("#error_create").fadeIn();
             }
 
-        })
+        });
         
     });
 
 
     //load categories from restoran in select for create a product
-    $('#restaurant_select').change(function(){
+    $(document).on("change", '#restaurant_select', function(){
         $.get({
             url:'/admin/categories-by-restaurant',
             dataType: 'json',
@@ -116,7 +124,7 @@ $( document ).ready(function() {
     });
 
 
-    $("#createCategoryForm").submit(function(event){
+    $(document).on("submit", "#createCategoryForm", function(event){
         event.preventDefault();
         
         $.ajax({
@@ -125,9 +133,9 @@ $( document ).ready(function() {
             dataType: 'json',
             data : $("#createCategoryForm").serialize(),
             success : function(response){                
-                $("#createCategoryForm").fadeOut("slow");
-                $("#success_create").fadeIn().fadeOut(3000);
-                $("#data-products").html(response.data);
+                $("#name_category").val("");
+                $("#success_create").fadeIn(3000).fadeOut(3000);
+                //$("#data-products").html(response.data);
             },
             error : function(response){
                 $("#error_create").fadeIn();

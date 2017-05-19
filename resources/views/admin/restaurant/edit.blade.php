@@ -31,7 +31,7 @@
 					        <label for="lastname" class="col-md-4 control-label">Last Name</label>
 
 					        <div class="col-md-6">
-					            <input id="lastname" type="text" class="form-control" name="lastname" value="{{ old('lastname',$restaurant->lastname) }}" required autofocus>
+					            <input id="lastname" type="text" class="form-control" name="lastname" value="{{ old('lastname',$restaurant->user->lastname) }}" required autofocus>
 
 					            @if ($errors->has('lastname'))
 					                <span class="help-block">
@@ -74,7 +74,7 @@
 					        <label for="email" class="col-md-4 control-label">E-Mail Address</label>
 
 					        <div class="col-md-6">
-					            <input id="email" type="email" class="form-control" name="email" value="{{ old('email',$restaurant->email) }}" required>
+					            <input id="email" type="email" class="form-control" name="email" value="{{ old('email',$restaurant->user->email) }}" required>
 
 					            @if ($errors->has('email'))
 					                <span class="help-block">

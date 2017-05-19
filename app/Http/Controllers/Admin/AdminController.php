@@ -84,7 +84,10 @@ class AdminController extends Controller
                     'password' => 'required|string|min:6|confirmed',
                     'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:1024',
                 ]);
-
+            case 'category':
+                return \Validator::make($data, [
+                    'name' => 'required|string|unique_with:categories,restaurant_id|max:255',
+                ]);
             default:
                 # code...
                 break;
@@ -177,33 +180,42 @@ class AdminController extends Controller
                 $destinationPath = public_path('/uploads/');
                 $image->move($destinationPath.$slug."/", $input['imagename']);
 
+                \DB::beginTransaction();
 
                 $user = User::create([
-                    "name" => ucwords($request['name']),                    
-                    "lastname" => ucwords($request['lastname']),
-                    "email" => $request['email'],
-                    "password" => bcrypt($request['password']),
-                    "phone" => $request['phone'],
-                    "address" => $request['address'],                    
-                    //"city" => $request['city'],                    
-                    //"zip" => $request['zip'],                    
-                    "type" => 'restaurant',
-                    //'logo' => $slug."/".$input['imagename'],
-                    "active" => 1
-                ]);                
+                        "name" => ucwords($request['name']),                    
+                        "lastname" => ucwords($request['lastname']),
+                        "email" => $request['email'],
+                        "password" => bcrypt($request['password']),
+                        "phone" => $request['phone'],
+                        "address" => $request['address'],                    
+                        //"city" => $request['city'],                    
+                        //"zip" => $request['zip'],                    
+                        "type" => 'restaurant',
+                        //'logo' => $slug."/".$input['imagename'],
+                        "active" => 1
+                    ]);
 
-                \App\Restaurant::create([
-                    "user_id" => $user->id,
-                    "category_id" => $request['category'],
-                    "name" => ucwords($request['name']),                    
-                    "slug" => $slug ,                    
-                    "phone" => $request['phone'],
-                    "address" => $request['address'],
-                    "city" => ucwords($request['city']),
-                    "zip" => $request['zip'],                    
-                    'logo' => $slug."/".$input['imagename'],
-                    "active" => 1
-                ]);
+                try{
+                    \App\Restaurant::create([
+                        "user_id" => $user->id,
+                        "category_id" => $request['category'],
+                        "name" => ucwords($request['name']),                    
+                        "slug" => $slug ,                    
+                        "phone" => $request['phone'],
+                        "address" => $request['address'],
+                        "open_hour" => $request['open_hour'],
+                        "close_hour" => $request['close_hour'],
+                        "city" => ucwords($request['city']),
+                        "zip" => $request['zip'],                    
+                        'logo' => $slug."/".$input['imagename'],
+                        "active" => 1
+                    ]);    
+                }catch (Exception $e){
+                    \DB::rollBack();
+                }
+
+                \DB::commit();
 
                 $restaurants = \App\Restaurant::all();
                 $table = view('admin.restaurant.restaurants-ajax',compact('restaurants'))->render();
@@ -309,16 +321,26 @@ public function insertProduct(Request $request){
 # CATEGORY
 #########################################################
 public function insertCategory(Request $request){
-    if ( $request->ajax() ){
+    if ( $request->ajax() && $this->validator($request->all(),"category") ){
         
-        \App\Category::create([
-            'restaurant_id' => $request['restaurant_id'],
-            'name' => $request['name'],
-            'slug' => str_slug($request['name']),
-            'active' => 1,
-        ]);
+        $categories = explode(",", $request['name']);
+        foreach ( $categories as $cat){
 
-        return json_encode(array("status"=>200,"message"=>"category created"));
+            \App\Category::create([
+                'restaurant_id' => $request['restaurant_id'],
+                'name' => $cat,
+                'slug' => str_slug($cat),
+                'active' => 1,
+            ]);
+        }
+        
+        if ( count($categories) == 1){
+            $message = "Category Created Succesfully";
+        }else if (count($categories) > 1 ){
+            $message = "Categories Created Succesfully";
+        } 
+
+        return json_encode(array("status"=>200,"message"=>$message));
         $categories = \App\Category::all();
         $table = view('admin.category.categories-ajax',compact('categories'))->render();
     }

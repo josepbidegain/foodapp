@@ -43,4 +43,8 @@ class User extends Authenticatable
         return $this->hasMany(\App\Restaurant::class);
     }
 
+    public function getAddress(){
+        return $this->hasMany(\App\Address::class);
+    }
+
 }

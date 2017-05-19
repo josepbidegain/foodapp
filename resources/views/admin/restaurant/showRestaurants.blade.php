@@ -9,7 +9,7 @@
             <div class="panel panel-default">
                 
                 <div class="panel-body">
-                <button id="showCreateForm" class="success">Create</button>
+                <button id="btnShowCreateForm" class="success">Create</button>
                 
                 <div id="createContainer" style="display: none;">
 					@include('admin.restaurant.create')
@@ -30,7 +30,9 @@
 			                        <th><input type="text" class="form-control" placeholder="Name" disabled></th>
 			                        <th><input type="text" class="form-control" placeholder="Lastname" disabled></th>
 			                        <th><input type="text" class="form-control" placeholder="Phone" disabled></th>
-			                        <th><input type="text" class="form-control" placeholder="Address" disabled></th>                        
+			                        <th><input type="text" class="form-control" placeholder="Address" disabled></th>
+			                        <th><input type="text" class="form-control" placeholder="Open" disabled></th>                        
+			                        <th><input type="text" class="form-control" placeholder="Close" disabled></th>                        
 			                        <th><input type="text" class="form-control" placeholder="Email" disabled></th>                        
 			                        <th><input type="text" class="form-control" placeholder="Status" disabled></th>                       
 			                        <th><input type="text" class="form-control" placeholder="Actions" disabled></th>                       
@@ -45,6 +47,8 @@
 							        <td>{{ $restaurant->user->lastname }}</td>
 							        <td>{{ $restaurant->phone }}</td>
 							        <td>{{ $restaurant->address }}</td>
+							        <td>{{ $restaurant->open_hour }}</td>
+							        <td>{{ $restaurant->close_hour }}</td>
 							        <td>{{ $restaurant->user->email }}</td>
 									@if ($restaurant->active)
 							        <td>Active</td>

@@ -88,7 +88,34 @@
         </div>
     </div>
 
+    
+    <div class="form-group{{ $errors->has('open_hour') ? ' has-error' : '' }}">
+        <label for="open_hour" class="col-md-4 control-label">Open Hour</label>
 
+        <div class="col-md-6">
+            <input id="open_hour" type="text" class="form-control" name="open_hour" value="{{ old('open_hour') }}" required autofocus>
+
+            @if ($errors->has('open_hour'))
+                <span class="help-block">
+                    <strong>{{ $errors->first('open_hour') }}</strong>
+                </span>
+            @endif
+        </div>
+    </div>
+
+    <div class="form-group{{ $errors->has('close_hour') ? ' has-error' : '' }}">
+        <label for="close_hour" class="col-md-4 control-label">Close Hour</label>
+
+        <div class="col-md-6">
+            <input id="close_hour" type="text" class="form-control" name="close_hour" value="{{ old('close_hour') }}" required autofocus>
+
+            @if ($errors->has('close_hour'))
+                <span class="help-block">
+                    <strong>{{ $errors->first('close_hour') }}</strong>
+                </span>
+            @endif
+        </div>
+    </div>
 
 
     <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
