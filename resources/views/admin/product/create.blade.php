@@ -1,7 +1,8 @@
 <div id="success_create" class="alert alert-success fade in" style="display: none;">Product created succesfully</div>
 <div id="error_create" class="alert alert-danger fade in" style="display: none;">Error to create the Product</div>
 
-<form id="createProductForm" class="form-horizontal">
+
+<form id="createProductForm" class="form-horizontal" enctype ="multipart/form-data">
     {{ csrf_field() }}
 
     <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
@@ -66,6 +67,41 @@
             <select id="categories_restaurant" class="form-control" name="category">
                 
             </select>
+        </div>
+    </div>
+
+    
+    <div class="form-group{{ $errors->has('taste') ? ' has-error' : '' }}">
+        <label for="taste" class="col-md-4 control-label">Taste</label>
+
+        <div class="col-md-6">
+            <input id="taste_name" type="text" class="form-control" name="taste_name" value="{{ old('name') }}" placeholder="can put separated by coma, ex: Morron, Aceitunas" autofocus>
+
+            @if ($errors->has('tast_name'))
+                <span class="help-block">
+                    <strong>{{ $errors->first('tast_name') }}</strong>
+                </span>
+            @endif
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="imageInput">Image</label>
+        <input data-preview="#preview" name="logo" type="file" id="logo">
+        <img class="col-sm-6" id="preview"  src="" ></img>        
+    </div>
+
+    <div class="form-group{{ $errors->has('recomendated') ? ' has-error' : '' }}">
+        <label for="recomendated" class="col-md-4 control-label">Recomendated</label>
+
+        <div class="col-md-6">
+            <input id="recomendated" type="checkbox" class="form-control" name="recomendated" value="{{ old('recomendated') }}">
+
+            @if ($errors->has('recomendated'))
+                <span class="help-block">
+                    <strong>{{ $errors->first('recomendated') }}</strong>
+                </span>
+            @endif
         </div>
     </div>
 

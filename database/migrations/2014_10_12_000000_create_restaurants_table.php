@@ -24,6 +24,7 @@ class CreateRestaurantsTable extends Migration
             $table->string('address');
             $table->string('open_hour')->nullable();
             $table->string('close_hour')->nullable();
+            $table->integer('min_cost')->nullable();
             $table->string('phone');
             $table->string('city');
             $table->string('zip')->nullable();            

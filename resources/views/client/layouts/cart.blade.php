@@ -69,7 +69,13 @@
                                     <input id="comment_order" type="textarea">
                                 </li>
                                 <li>
+                                    @if ($has_complete_data_user)
                                     <button id='do_order'>Realizar pedido</button>
+                                    @else
+                                    <label>Por favor complete su direccion antes de pedir</label>
+                                    <a href="/profile/{{Auth::user()->id}}">Completar informacion</a>
+                                    @endif
+
                                 </li>
 
                             </ul>

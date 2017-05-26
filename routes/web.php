@@ -43,6 +43,7 @@ Route::get('auth/{provider}', 'Auth\SocialController@redirectToProvider');
 Route::get('auth/{provider}/callback', 'Auth\SocialController@handleProviderCallback');
 
 
+
 //clients
 Route::group(['middleware' => 'client'], function () {
 	Route::get('/home', 'ClientController@index')->name('home');	
@@ -57,7 +58,7 @@ Route::group(['middleware' => 'client'], function () {
 	Route::post('/remove-product-from-cart', 'ClientController@remove_product_from_cart');	
 	Route::post('/manage-product-from-cart', 'ClientController@manage_product_from_cart');	
 	
-
+	Route::get('/hola', 'ClientController@hola');
 });
 
   Route::post('/admin/client/create', 'Admin\AdminController@insertClient');
@@ -84,6 +85,14 @@ Route::group(['middleware' => 'admin'], function () {
     Route::post('/admin/category', 'Admin\AdminController@insertCategory');
     Route::get('/admin/categories-by-restaurant', 'Admin\AdminController@getCategoriesByRestaurant');
 
+    Route::get('/admin/discounts/{id}/edit', 'Admin\AdminController@editDiscount');
+    Route::post('/admin/discount/{id}', 'Admin\AdminController@updateDiscount');
+	Route::get('/admin/discounts', 'Admin\AdminController@showDiscounts');
+	Route::post('/admin/discount', 'Admin\AdminController@insertDiscount');
+
+	Route::get('/admin/promotions', 'Admin\AdminController@promotions');
+	Route::get('/admin/promotions/{promotion}/edit', 'Admin\AdminController@editPromotion');
+	Route::post('/admin/promotion/{id}', 'Admin\AdminController@updatePromotion');
 
     Route::get('/admin/orders', 'Admin\AdminController@orders');
 	

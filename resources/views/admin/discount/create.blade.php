@@ -3,7 +3,19 @@
 
 <form id="createDiscountForm" class="form-horizontal">
     {{ csrf_field() }}
-    <input type="hidden" name="restaurant_id" value="{{$restaurant->id}}">
+    
+    <div class="form-group">
+        <label for="type" class="col-md-4 control-label">Restaurant</label>
+
+        <div class="col-md-6">
+            <select id="restaurant_select" class="form-control" name="restaurant_id">
+                <option value="-1">Select Restaurant</option>
+                @foreach ($restaurants as $restaurant)
+                    <option value="{{ $restaurant->id }}">{{ $restaurant->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
 
     <div class="form-group{{ $errors->has('percent') ? ' has-error' : '' }}">
         <label for="percent" class="col-md-4 control-label">Percent</label>
@@ -23,7 +35,7 @@
         <label for="start_date" class="col-md-4 control-label">Start Date</label>
 
         <div class="col-md-6">
-            <textarea id="start_date" type="text" class="form-control" name="start_date" value="{{ old('start_date') }}" required autofocus></textarea>
+            <input id="start_date" type="date" class="form-control" name="start_date" value="{{ old('start_date') }}" required autofocus date>
 
             @if ($errors->has('start_date'))
                 <span class="help-block">
@@ -47,28 +59,49 @@
         </div>
     </div>
 
-    <div class="form-group">
-        <label for="type" class="col-md-4 control-label">Restaurant</label>
+
+    <div class="form-group{{ $errors->has('range_limit') ? ' has-error' : '' }}">
+        <label for="range_limit" class="col-md-4 control-label">Range Limit</label>
 
         <div class="col-md-6">
-            <select id="restaurant_select" class="form-control" name="restaurant">
-                <option value="-1">Select Restaurant</option>
-                @foreach ($restaurants as $restaurant)
-                    <option value="{{ $restaurant->id }}">{{ $restaurant->name }}</option>
-                @endforeach
-            </select>
+            <input id="range_limit" type="checkbox" class="form-control" name="range_limit" value="{{ old('range_limit') }}">
+
+            @if ($errors->has('range_limit'))
+                <span class="help-block">
+                    <strong>{{ $errors->first('range_limit') }}</strong>
+                </span>
+            @endif
         </div>
     </div>
 
-    <div id="categories_container" class="form-group" style="display: none;">
-        <label for="type" class="col-md-4 control-label">Category</label>
+    <div class="form-group{{ $errors->has('min_value') ? ' has-error' : '' }}">
+        <label for="min_value" class="col-md-4 control-label">Min Value</label>
 
         <div class="col-md-6">
-            <select id="categories_restaurant" class="form-control" name="category">
-                
-            </select>
+            <input id="min_value" type="text" class="form-control" name="min_value" value="{{ old('min_value') }}" autofocus>
+
+            @if ($errors->has('min_value'))
+                <span class="help-block">
+                    <strong>{{ $errors->first('min_value') }}</strong>
+                </span>
+            @endif
         </div>
     </div>
+
+    <div class="form-group{{ $errors->has('max_value') ? ' has-error' : '' }}">
+        <label for="max_value" class="col-md-4 control-label">Max value</label>
+
+        <div class="col-md-6">
+            <input id="max_value" type="text" class="form-control" name="max_value" value="{{ old('max_value') }}" autofocus>
+
+            @if ($errors->has('max_value'))
+                <span class="help-block">
+                    <strong>{{ $errors->first('max_value') }}</strong>
+                </span>
+            @endif
+        </div>
+    </div>
+
 
     <div class="form-group">
         <div class="col-md-6 col-md-offset-4">

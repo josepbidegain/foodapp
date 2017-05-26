@@ -77,32 +77,75 @@ class ClientController extends Controller
         return $products_cart;
     }
 
-    public function showRestaurant($id,$name){
-        $now = Carbon\Carbon::now()->toDateString(); dd($now);
-        $products_cart = array();
-        if ( $session_prods = \Session::get("restaurant-".$id) ){
-            $products_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
-        }
-        \Log::info("-->AA: ".var_export($session_prods,1));
-        $restaurant = \App\Restaurant::find($id);        
-        $products = \App\Product::where('restaurant_id',$id)->get();
-        
-        //$have_discount = $restaurant->getActiveDiscount();
-        //\App::Discount::where('restaurant_id', $id)->where('start_date' '<=', $now)->where('end_date', '>=', $now);
+    public function checkDiscount($restaurant,$session_prods,$products =null,$products_cart){
 
+        $have_discount = $restaurant->getActiveDiscount();
+        //$have_discount = \App\Discount::where('restaurant_id', $id)->where('start_date' '<', $now)->where('end_date', '>=', $now);
+        $percent = 0;
+        foreach($have_discount as $d){
+           $percent = $d->percent; 
+        }
+        
+        if ( $products != null && $percent != 0 ){            
+            foreach ($products as $p) {            
+                $p->afterDiscount = ceil ( $p->price - ( ($p->price * $percent) / 100 ) );
+            }
+        }
+        
         $subTotal=0;
         foreach ( $products_cart as $p ){
             $p->count = $session_prods[$p->id];
-            $p->totalPrice = $session_prods[$p->id] * $p->price;
+
+            $p->afterDiscount = 0;
+            if ( $percent != 0 ){
+                $p->afterDiscount = ceil( $p->price - ( ($p->price * $percent) / 100 ) );
+                $p->totalPrice = $session_prods[$p->id] * $p->afterDiscount;
+            }else{
+                $p->totalPrice = $session_prods[$p->id] * $p->price;
+            }
+
             $subTotal += $p->totalPrice;
             /*
             $discount = \App\Promotion::where('restaurant_id',$id)->where('product_id',$p->id);
             $p->discount = $discount;*/
-        }   
+        }
+        return array($have_discount,$products_cart,$products,$subTotal);
+    }
+
+    public function showRestaurant($id,$name){
+        
+        $products_cart = array();
+        if ( $session_prods = \Session::get("restaurant-".$id) ){
+            $products_cart = \App\Product::whereIn("id",array_keys($session_prods))->get(); 
+        }
+        
+        $restaurant = \App\Restaurant::find($id);        
+        $products = \App\Product::where('restaurant_id',$id)->get();
+
+        $arrayInfo = $this->checkDiscount($restaurant,$session_prods,$products,$products_cart);
+        $have_discount = $arrayInfo[0];
+        $products_cart = $arrayInfo[1];
+        $products = $arrayInfo[2];
+        $subTotal = $arrayInfo[3];
+
         $mainAddress = \Auth::user()->address; 
         $otherAddress= \App\Address::where('user_id', \Auth::user()->id)->get();
         
-        return view('client.showRestaurant',compact('restaurant','products','products_cart', 'mainAddress', 'otherAddress', 'subTotal', 'have_discount'));
+        $recomendated_products = array();//\App\Product::where('restaurant_id',$id)->where('active',true)->where('recomendated',true)->get();
+        if ($have_discount){
+            foreach ($products as $p){
+                if ($p->recomendated == 1){
+                    $recomendated_products []= $p;    
+                }                
+            }
+        }else{
+            
+            $recomendated_products = \App\Product::where('restaurant_id',$id)->where('active',true)->where('recomendated',true)->get();            
+        }
+
+        $has_complete_data_user = ($mainAddress != null && \Auth::user()->phone != null);
+
+        return view('client.showRestaurant',compact('restaurant','products','products_cart', 'mainAddress', 'otherAddress', 'subTotal', 'have_discount','recomendated_products','has_complete_data_user'));
     }
 
 
@@ -128,6 +171,7 @@ class ClientController extends Controller
             
             if ( ! $session_prods = \Session::get("restaurant-".$restaurant_id) ){
                 \Session::put("restaurant-".$restaurant_id, $array_prods);
+                $session_prods = array();
             }
             
             if ( array_key_exists($prod, $session_prods) ){
@@ -140,12 +184,22 @@ class ClientController extends Controller
             
             $products_cart = \App\Product::whereIn("id",array_keys($session_prods))->get();
 
+
+            $restaurant = \App\Restaurant::find($restaurant_id);
+
+            $arrayInfo = $this->checkDiscount($restaurant,$session_prods,null,$products_cart);
+            
+            $products_cart = $arrayInfo[1];
+            //$products = $arrayInfo[2];
+            $subTotal = $arrayInfo[3];
+
+            /*
             $subTotal = 0;
 
             foreach ( $products_cart as $prod ){
                 $subTotal += ( $prod->price * $session_prods[$prod->id]);    
             }
-            
+            */
             $mainAddress = \Auth::user()->address; 
             $otherAddress= \App\Address::where('user_id', \Auth::user()->id)->get();
 
@@ -237,5 +291,16 @@ class ClientController extends Controller
 
         return redirect('/');
     }
+
+    public function hola(){
+        \Event::fire(new \App\Events\Event(\Auth::user()));
+        /*$job = (new \App\Jobs\SendReminderEmail(\Auth::user()))                
+                 ->delay(\Carbon\Carbon::now()->addMinutes(2));
+    
+        dispatch($job);
+        */
+        return "Gracias por pedir tu cena con nosotros, sumaste 1 mordisco";
+    }
+
 
 }

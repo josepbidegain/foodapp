@@ -74,12 +74,29 @@ $( document ).ready(function() {
     //OK
     $(document).on("submit", "#createProductForm",function(event){
         event.preventDefault();
-        
+        var token =  $('#createProductForm').find( 'input[name=_token]' ).val();
+        var formData = new FormData();
+        formData.append("logo", $('#logo').get(0).files[0]);
+        formData.append("_token", token);
+        $('#createProductForm input').each(function(){
+            formData.append($(this).attr('name'),$(this).val());
+        });
+
+        $('#createProductForm select').each(function(){
+            formData.append($(this).attr('name'),$(this).val());
+        });
+
+        $('#createProductForm textarea').each(function(){
+            formData.append($(this).attr('name'),$(this).val());
+        });
+        console.log(formData);
         $.ajax({
             method : 'POST',
             url : '/admin/products/create',
             dataType: 'json',
-            data : $("#createProductForm").serialize(),
+            data : formData,
+            contentType: false,
+            processData: false,
             success : function(response){                
                 $("#createContainer").fadeOut("slow");
                 $("#btnShowCreateForm").fadeIn();
@@ -123,7 +140,6 @@ $( document ).ready(function() {
         })
     });
 
-
     $(document).on("submit", "#createCategoryForm", function(event){
         event.preventDefault();
         
@@ -144,6 +160,124 @@ $( document ).ready(function() {
         })
         
     });
+
+    $(document).on("submit", "#createDiscountForm", function(event){
+        event.preventDefault();
+        
+        $.ajax({
+            method : 'POST',
+            url : '/admin/discount',
+            dataType: 'json',
+            data : $("#createDiscountForm").serialize(),
+            success : function(response){
+                $("#success_create").fadeIn().fadeOut(3000,function(){
+
+                    $("#data-discounts").html(response.data);
+
+                    $("#createContainer").fadeOut();
+                    $("#btnShowCreateForm").fadeIn();
+                    $("#createDiscountForm").find("input[type=text], textarea").val("");
+                    $("#createDiscountForm").find("input[type=checkbox]").val(false);
+                    $("#createDiscountForm").find("select").val("-1");     
+                });
+               
+            },
+            error : function(response){
+                $("#error_create").fadeIn();
+            }
+
+        })
+        
+    });
+
+    if ( $("#range_limit").val() == 1 ){
+        $("#range_limit").attr("checked","true");
+    }
+
+    $(document).on("click", "#range_limit", function(event){
+        if ( $(this).val() == 0){
+            $(this).val(1);console.log('cambio a 1');
+            $("#min_value").attr("required","true");
+            $("#max_value").attr("required","true");
+            
+        }else{
+            $(this).val(0);console.log('cambio a 0');
+            $("#min_value").removeAttr("required");
+            $("#max_value").removeAttr("required");
+        }
+    });
+    $(document).on("submit","#editDiscountForm", function(event){
+        event.preventDefault();
+        var discount_id = $("#discount_id").val();
+        var url_to = '/admin/discount/'+discount_id;
+        console.log("discount_id: "+$("#editDiscountForm").serialize());
+        $.ajax({
+            method: 'POST',
+            url: url_to,
+            dataType: 'json',
+            data: $("#editDiscountForm").serialize(),
+            success: function(response){
+                $("#success_update").fadeIn();
+            },
+            error: function(error){
+                $("#error_update").fadeIn();
+            }
+        });
+    });
+
+
+
+    $(document).on("submit", "#createPromotionForm", function(event){
+        event.preventDefault();
+        
+        $.ajax({
+            method : 'POST',
+            url : '/admin/promotion',
+            dataType: 'json',
+            data : $("#createPromotionForm").serialize(),
+            success : function(response){
+                $("#success_create").fadeIn().fadeOut(3000,function(){
+
+                    $("#data-promotions").html(response.data);
+
+                    $("#createContainer").fadeOut();
+                    $("#btnShowCreateForm").fadeIn();
+                    $("#createPromotionForm").find("input[type=text], textarea").val("");                    
+                });
+               
+            },
+            error : function(response){
+                $("#error_create").fadeIn();
+            }
+
+        })
+        
+    });
+
+    $(document).on("submit","#editPromotionForm", function(event){
+        event.preventDefault();
+        var promotion_id = $("#promotion_id").val();
+        var url_to = '/admin/promotion/'+promotion_id;
+        console.log("promotion_id: "+$("#editPromotionForm").serialize());
+        $.ajax({
+            method: 'POST',
+            url: url_to,
+            dataType: 'json',
+            data: $("#editPromotionForm").serialize(),
+            success: function(response){
+                $("#success_update").fadeIn();
+            },
+            error: function(error){
+                $("#error_update").fadeIn();
+            }
+        });
+    });
+
+    if ( $("#recomendated").val() == 1 ){
+        $("#recomendated").attr("checked","true");
+    }
+
+
 
 });
 

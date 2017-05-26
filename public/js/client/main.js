@@ -72,7 +72,7 @@ $( document ).ready(function() {
             dataType: 'json',
             data: {restaurant_id: r_id, product_id: prod_id, number: count },
             success: function(response){
-                console.log(response);
+                //console.log(response);
 
                 if (response.products.length){
                     
@@ -82,7 +82,7 @@ $( document ).ready(function() {
                         html += '<li><button prod-id="" class="removeProd">Remove All</button></li>';
                     }
                     
-                    $.each(response.products, function(index,product) {
+                    $.each(response.products, function(index,product) { console.log(product.afterDiscount);
                         //console.log(index,product);                   
                         html+="<li><select prod-id='"+product.id+"' name='cart_count' id='cart_count'>";
                         
@@ -96,7 +96,12 @@ $( document ).ready(function() {
                         }           
                                     
                         html +="</select>";
-                        html += product.title + " ( "+ product.description +" )" + " $" + ( product.price * response.data[product.id] ) +"<button prod-id='"+product.id+"' class='removeProd'>x</button></li>";
+                        if (product.afterDiscount != 0){ 
+                            var showPriceCart = product.afterDiscount * response.data[product.id];
+                        }else{ 
+                            var showPriceCart = product.price * response.data[product.id];
+                        }
+                        html += product.title + " ( "+ product.description +" )" + " $" + showPriceCart +"<button prod-id='"+product.id+"' class='removeProd'>x</button></li>";
                     });
                     html += "<li> Sub Total:  $ "+response.subTotal+"</li>";
                     html += "</ul>";

@@ -72,6 +72,18 @@ class AdminController extends Controller
                 ]);
                 
                 break;
+
+            case 'product':
+                
+                return \Validator::make($data, [
+                    'restaurant_id' => 'required|integer',
+                    'category_id' => 'required|integer',
+                    'description' => 'required|string',            
+                    'price' => 'required|integer'                    
+                ]);
+                
+                break;
+
             case 'restaurant':
                 
                 return \Validator::make($data, [
@@ -84,10 +96,44 @@ class AdminController extends Controller
                     'password' => 'required|string|min:6|confirmed',
                     'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:1024',
                 ]);
+                break;
+
             case 'category':
                 return \Validator::make($data, [
                     'name' => 'required|string|unique_with:categories,restaurant_id|max:255',
                 ]);
+                break;
+
+            case 'discount':
+                return \Validator::make($data, [
+                
+                    'restaurant_id' => 'required|integer',
+                    'name' => 'required|string|unique_with:discounts,restaurant_id|max:255',
+                    'percent' => 'required|integer',
+                    'start_date' => 'required|date',
+                    'end_date' => 'date',
+                    'range_limit' => 'boolean',
+                    'min_value' => 'integer',
+                    'max_value' => 'integer',
+                    'active' => 'boolean',
+            
+
+                    ]);
+                break;
+
+            case 'promotion':
+                return \Validator::make($data, [
+                
+                    'restaurant_id' => 'required|integer',
+                    'name' => 'required|string|max:255',
+                    'description' => 'required|string|max:255',
+                    'price' => 'required|integer',
+                    'start_date' => 'required|date',
+                    'end_date' => 'date',                    
+                    'active' => 'boolean',            
+
+                    ]);
+                break;
             default:
                 # code...
                 break;
@@ -292,16 +338,47 @@ public function getCategoriesByRestaurant(Request $request){
 public function insertProduct(Request $request){
 
     if ( $request->ajax() ){//&& $this->validator($request->all()) ){
+        
+        \Log::info($request->all());
+        \Log::info($request->hasFile('logo'));
+
+        $restaurant = \App\Restaurant::find($request['restaurant']);
+
+        if( $request->hasFile('logo')){ 
+            
+            $slug =  str_slug( strtolower($request['title']));
+
+            $image = $request->file('logo');
+            $input['imagename'] = time().'.'.$image->getClientOriginalExtension();
+            $destinationPath = public_path('/uploads/products/');
+            $image->move($destinationPath.'/'.$restaurant->slug.'/'.$slug."/", $input['imagename']);
+        }
 
         $result = \App\Product::create([
                 "restaurant_id" => $request['restaurant'],
                 "category_id" => $request['category'],
                 "title" => $request['title'],
                 "description" => $request['description'],
+                "image" => isset($slug) ? ($slug."/".$input['imagename']):null,
+                "recomendated" => $request['recomendated'] != null  ? $request['recomendated']:false,
                 "price" => $request['price'],
                 "active" => 1
 
             ]);
+        \Log::info('result insert product '.$result);
+        \Log::info('taste_name '.$request['taste_name']);
+        if ($result && $request['taste_name'] != null){
+            
+            $tastes = explode(",", $request['taste_name']);
+            foreach ( $tastes as $taste){
+                $oTaste = new \App\FoodTaste();
+                $oTaste->product_id = $result->id;
+                $oTaste->name = ucwords($taste);
+                $oTaste->slug = str_slug(strtolower($taste));
+                $oTaste->active = 1;
+                $oTaste->save();                
+            }
+        }
 
         $products = \App\Product::all();
         $table = view('admin.product.products-ajax',compact('products'))->render();
@@ -352,6 +429,98 @@ public function insertCategory(Request $request){
 # END CATEGORIES
 #########################################################
 
+
+#########################################################
+# DISCOUNTS
+#########################################################
+
+public function showDiscounts(){
+    $discounts = \App\Discount::all();   
+    $restaurants = \App\Restaurant::where('active',1)->latest()->get();
+
+    return view('admin.discount.showDiscounts', compact('discounts','restaurants'));   
+}
+
+public function editDiscount($id){
+
+    $discount = \App\Discount::find($id);
+    $restaurant = \App\Restaurant::find($discount->restaurant_id);
+
+    
+    return view('admin.discount.edit',compact('discount','restaurant'));
+}
+
+public function insertDiscount(Request $request){
+    if ($request->ajax() && $this->validator($request->all(),"discount")){
+
+        \App\Discount::create([
+            'restaurant_id' => $request['restaurant_id'],
+            'name' => $request['name'],
+            'percent' => $request['percent'],
+            'start_date' => $request['start_date'],
+            'end_date' => $request['end_date'],
+            'range_limit' => ($request['range_limit'] != null) ? $request['range_limit'] : false,
+            'min_value' => ($request['min_value'] != null) ? $request['min_value'] : 0,
+            'max_value' => ($request['max_value'] != null) ? $request['max_value'] : 0,
+            'active' => 1,
+        ]);
+        
+        $discounts = \App\Discount::all();
+        $table = view('admin.discount.discounts-ajax',compact('discounts'))->render();
+        
+        return json_encode(array("status"=>200,"message"=>"Discount Created Succesfully", "data"=>$table));
+        
+           
+    }
+    return redirect('/');
+}
+
+public function updateDiscount(Request $request){
+    if ($request->ajax() && $this->validator($request->all(),"discount")){
+        
+        $discount = \App\Discount::find( $request->input('discount_id') );
+        $discount->update($request->all());
+
+        return json_encode(array("status"=>200, "message"=>"Discount updated correctly"));
+
+    }
+    return json_encode(array("status"=>400, "message"=>"Request isn't a valid ajax"));
+}
+
+#########################################################
+# END DISCOUNTS
+#########################################################
+
+#########################################################
+# PROMOTIONS
+#########################################################
+
+public function promotions(){
+    $promotions = \App\Promotion::all();
+    $restaurants = \App\Restaurant::all();
+    return view('admin.promotion.showPromotions', compact('promotions', 'restaurants'));
+}
+
+public function editPromotion(\App\Promotion $promotion){
+    $restaurant = $promotion->restaurant;
+    //dd($restaurant);
+    return view('admin.promotion.edit', compact('promotion','restaurant'));
+}
+
+public function updatePromotion(Request $request){
+    if ($request->ajax() && $this->validator($request->all(),"promotion")){
+        
+        $promotion = \App\Promotion::find( $request->input('promotion_id') );
+        $promotion->update($request->all());
+
+        return json_encode(array("status"=>200, "message"=>"Promotion updated succesfully"));
+
+    }
+    return json_encode(array("status"=>400, "message"=>"Request isn't a valid ajax"));
+}
+#########################################################
+# END PROMOTIONS
+#########################################################
 
 
 #########################################################
