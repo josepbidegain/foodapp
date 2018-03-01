@@ -16,7 +16,7 @@ class CreateSocialProvidersTable extends Migration
         Schema::create('social_accounts', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('users');
+            //$table->foreign('user_id')->references('id')->on('users');
             $table->string('social_id');
             $table->string('provider');
             $table->string('avatar');
@@ -32,6 +32,6 @@ class CreateSocialProvidersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('social_providers');
+        Schema::dropIfExists('social_accounts');
     }
 }

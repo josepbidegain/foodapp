@@ -3,9 +3,6 @@
 @section('content')
 
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
             <div class="panel panel-default">
                 
                 <div class="panel-body">
@@ -15,36 +12,6 @@
 					@include('admin.client.create')
 				</div>
                 
-                <!-- <table class="table table-hover">
-				    <thead>
-				    <tr class="filters">
-                        <th><input type="text" class="form-control" placeholder="#" disabled></th>
-                        <th><input type="text" class="form-control" placeholder="First Name" disabled></th>
-                        <th><input type="text" class="form-control" placeholder="Last Name" disabled></th>
-                        <th><input type="text" class="form-control" placeholder="Username" disabled></th>
-                    </tr>
-				      <tr>
-				        <th>Firstname</th>
-				        <th>Lastname</th>
-				        <th>Email</th>
-				        <th>Actions</th>
-				      </tr>
-				    </thead>
-				    <tbody id="data-users">
-				    
-				    @foreach ($users as $user)
-				      <tr>
-				        <td>{{ $user->name }}</td>
-				        <td>{{ $user->lastname }}</td>
-				        <td>{{ $user->email }}</td>
-				        <td>a b c</td>
-				      </tr>				      
-				    @endforeach
-
-				    </tbody>
-				  </table>
-				  -->
-	
 			    <div class="row">
 			        <div class="panel panel-primary filterable">
 			            <div class="panel-heading">
@@ -59,6 +26,8 @@
 			                        <th><input type="text" class="form-control" placeholder="#" disabled></th>
 			                        <th><input type="text" class="form-control" placeholder="First Name" disabled></th>
 			                        <th><input type="text" class="form-control" placeholder="Last Name" disabled></th>
+			                        <th><input type="text" class="form-control" placeholder="Address" disabled></th>
+			                        <th><input type="text" class="form-control" placeholder="Phone" disabled></th>
 			                        <th><input type="text" class="form-control" placeholder="Email" disabled></th>                        
 			                    </tr>
 			                </thead>
@@ -66,9 +35,11 @@
 							    
 							    @foreach ($users as $user)
 							      <tr>
-							        <td>{{ $user->id }}</td>
+							        <td><a href="/admin/clients/{{ $user->id }}/edit">{{ $user->id }}</a></td>
 							        <td>{{ $user->name }}</td>
 							        <td>{{ $user->lastname }}</td>
+							        <td>{{ $user->address }}</td>
+							        <td>{{ $user->phone }}</td>
 							        <td>{{ $user->email }}</td>
 							        <td>a b c</td>
 							      </tr>				      
@@ -81,8 +52,6 @@
 
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+
 @endsection
 

@@ -93,10 +93,23 @@
                 </div>
             </div>
         </nav>
-
-        @yield('content')
     </div>
 
+    <div class="container">
+        <div class="row">
+            <div id="sidebar" class="col-md-2">
+                @include('client.sidebar')
+            </div>
+            <div class="col-md-6">
+                @yield('content')
+            </div>
+            @if (\Request::is('restaurants/*'))
+                <div class="col-md-4">                
+                    @include('client.layouts.cart')
+                </div>
+            @endif
+        </div>
+    </div>
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/client/main.js') }}"></script>

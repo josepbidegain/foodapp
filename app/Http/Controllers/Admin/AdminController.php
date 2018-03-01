@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 
+use App\Notifications\InvoiceOrder;
+
 class AdminController extends Controller
 {
     /**
@@ -170,8 +172,8 @@ class AdminController extends Controller
     }
 
     public function editClient($id){
-        //Client::find($id)->get();
-        return view('admin.editclient');
+        $client = \App\User::find($id);        
+        return view('admin.client.edit',compact('client'));
     }
 
     public function updateClient(Request $request){
@@ -209,7 +211,7 @@ class AdminController extends Controller
 #########################################################
 
     public function restaurants(){
-        $restaurants = \App\Restaurant::all();
+        $restaurants = \App\Restaurant::with('user')->get();
         return view('admin.restaurant.showRestaurants',compact('restaurants'));
     }
     
@@ -318,7 +320,7 @@ class AdminController extends Controller
 #########################################################
 
 public function products(){
-    $products = \App\Product::all();
+    $products = \App\Product::orderBy('id','desc')->paginate(10);
     $restaurants = \App\Restaurant::where('active',1)->latest()->get();
 
     return view('admin.product.showProducts', compact('products','restaurants'));
@@ -333,6 +335,13 @@ public function getCategoriesByRestaurant(Request $request){
 
     return redirect('/');
     
+}
+
+public function editProduct($id){
+
+    $restaurants = \App\Restaurant::where('active',1)->latest()->get();
+    $product = \App\Product::find($id);
+    return view('admin.product.edit',compact('restaurants','product'));
 }
 
 public function insertProduct(Request $request){
@@ -365,6 +374,8 @@ public function insertProduct(Request $request){
                 "active" => 1
 
             ]);
+        \Auth::user()->notify(new InvoiceOrder($result));
+
         \Log::info('result insert product '.$result);
         \Log::info('taste_name '.$request['taste_name']);
         if ($result && $request['taste_name'] != null){
@@ -530,11 +541,19 @@ public function updatePromotion(Request $request){
 public function orders(){
     $orders = \App\Order::all();   
 
-    return view('admin.showOrders', compact('orders'));
+    return view('admin.order.showOrders', compact('orders'));
 }
 
 #########################################################
 # END ORDERS
 #########################################################
 
+    public function getHistory() 
+    {
+        //$user = \App\User::first();
+        $history = \OwenIt\Auditing\Models\Audit::with('user')->orderBy('id','DESC')->paginate();
+        //$history = $user->audits();
+        //dd($history);
+        return view('admin.history.showHistory', compact('history'));
+    }
 }

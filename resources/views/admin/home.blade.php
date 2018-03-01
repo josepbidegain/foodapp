@@ -1,21 +1,18 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">Admin Dashboard</div>
 
-                <div class="panel-body">
-                    You are logged in!
-                </div>
-            </div>
+<div class="col-md-6 col-md-offset-1">
+    <div class="panel-default">
+        <div class="panel-heading">Admin Dashboard</div>
+
+        <div class="panel-body">
+            Mostrar Ultimas notificaciones
         </div>
     </div>
 </div>
 
-<div id="sidebar" class="col-md-4">
+<div id="sidebar" class="col-md-3 col-md-offset-1">
     @include('admin.layouts.sidebar')
 </div>
 @endsection

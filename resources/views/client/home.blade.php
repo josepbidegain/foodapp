@@ -1,9 +1,40 @@
 @extends('client.layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
+
+
+
+
+  <div class="item">
+  @foreach ($restaurants as $restaurant)
+
+    <a href="/restaurants/{{$restaurant->id}}/{{$restaurant->slug}}">
+
+    <div class="row-fluid">
+      <div class="span4 dish-item">
+        <header>
+          <h3 class="text-center">{{$restaurant->name}} {{$restaurant->user->lastname}}</h3>
+        </header>
+        <figure class="border">
+          <img src="/uploads/{{$restaurant->logo}}" alt="{{$restaurant->slug}}">
+        </figure>
+        <article class="text-item text-center">
+          <header>
+            <h3><i class="wheel icon-tablet"></i>Fully Responsive</h3>
+          </header>
+          
+          <p>{{$restaurant->phone}}</p>
+          <p>{{$restaurant->address}}</p>
+        
+          <a href="#">Read more</a>
+        </article>
+      </div>
+    </div>
+    </a>
+  @endforeach
+</div>
+
+<!--
             <div class="panel panel-default">
                 <div class="panel-heading">Dashboard</div>
 
@@ -30,11 +61,5 @@
                     @endforeach
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<div id="sidebar" class="col-md-4">
-    @include('client.sidebar')
-</div>
+-->
 @endsection

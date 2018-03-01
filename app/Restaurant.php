@@ -3,11 +3,13 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Events\DoAction;
 
 class Restaurant extends Model
 {
 	protected $table = 'restaurants';
     protected $fillable = ['user_id', 'category_id', 'name', 'slug', 'address', 'open_hour', 'close_hour','phone', 'city', 'zip', 'logo', 'active'];
+
 
     public function products(){
     	return $this->hasMany(Product::class);

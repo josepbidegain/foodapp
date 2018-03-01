@@ -5,9 +5,17 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+use App\Events\DoAction;
+
+
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+
+class User extends Authenticatable implements AuditableContract
 {
     use Notifiable;
+    use Auditable;
+
 
     /**
      * The attributes that are mass assignable.
@@ -25,6 +33,10 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password', 'remember_token',
+    ];
+
+    protected $events = [
+        //'created' => DoAction::class
     ];
 
     function socialAccount(){
@@ -45,6 +57,10 @@ class User extends Authenticatable
 
     public function getAddress(){
         return $this->hasMany(\App\Address::class);
+    }
+
+    public function activities(){
+        return $this->hasMany(\App\Activity::class);
     }
 
 }

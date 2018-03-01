@@ -79,34 +79,63 @@
                         
                     </ul>
                 </div>
-                <div class="navbar-static-top">
-                    <ul>
-                        <li>
-                            <a href="/admin/clients">Clients</a>
-                        </li>
-                        <li>
-                            <a href="/admin/restaurants">Restaurants</a>
-                        </li>
-                        <li>
-                            <a href="/admin/products">Products</a>
-                        </li>
-                        <li>
-                            <a href="/admin/discounts">Discounts</a>
-                        </li>
-                        <li>
-                            <a href="/admin/promotions">Promotions</a>
-                        </li>
-                        <li>
-                            <a href="/admin/orders">Orders</a>
-                        </li>
-                    </ul>
-                </div>
+
+                
+
             </div>
         </nav>
 
-        @yield('content')
+        
     </div>
 
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <ul class="nav nav-pills nav-stacked">
+
+                      <li class="menu-item">
+                        <a href="/admin/clients" class="clients menu-item list-group-item">
+                            <i class="fa fa-list-alt fa-fw"></i>
+                            Clients
+                        </a>
+                      </li>
+                      <li class="menu-item">
+                        <a href="/admin/restaurants" class="restaurants menu-item list-group-item">
+                            Restaurants
+                        </a>
+                      </li>
+                      <li class="menu-item">
+                        <a href="/admin/products" class="products menu-item list-group-item">   Products
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/admin/discounts" class="discounts menu-item list-group-item">
+                        Discounts
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/admin/promotions" class="promotions menu-item list-group-item">
+                            Promotions
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/admin/orders" class="orders menu-item list-group-item">       Orders
+                        </a>
+                      </li>
+                    <li>
+                        <a href="/admin/history" class="history menu-item list-group-item">       History
+                        </a>
+                      </li>
+
+                    </ul>
+                </div>
+                <div class="col-md-9 well">
+                    @yield('content')
+                </div>
+            </div>
+        </div>
+
+    
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/admin/client.js') }}"></script>

@@ -5,14 +5,13 @@ $( document ).ready(function() {
         headers: { 'X-CSRF-Token' : $('input[name="_token"]').attr('value') }
     });
 
+
 	$(document).on("click", '.removeProd', function(event) {
 		
         var r_id =  $("#r_id").val();
         var prod_id = $(this).attr('prod-id');
-		var count = 0;
-    	//var token = $(document).find('meta[name=csrf-token]').attr('content');    	
-
-        sendAjaxPost(r_id,prod_id,count,"remove");
+		
+        sendAjaxPost(r_id,prod_id,null,"remove");
 	});
 
     $(document).on("click", ".add-product-btn" ,function(){
@@ -34,9 +33,40 @@ $( document ).ready(function() {
 
     });
 
+    $(document).on("change","#selectTypeAddress", function(){
+        console.log('cambia entrega');
+        if ( $(this).val() == 'local' ){
+            $(document).find("#mainAddress").hide();
+            $(document).find("#li_otherAddress").hide();
+        }else{
+            $(document).find("#mainAddress").show();
+        }
+    });
+
+    $(document).on("click","#editAddressCart", function(){
+        $(document).find("#li_otherAddress").show();
+        $(this).hide();
+    });
+
+    $(document).on("change", "#selectAddress", function(){
+        $("#li_otherAddress").hide();
+        $("#spanAddress").html($("#selectAddress").val() );
+    });
+    
     $(document).on("click", "#do_order", function(){
+
+        if ( $("#selectTypeAddress") == -1 ){
+            return false;
+        }/*
+        #schedule_order
+        #comment_order
+        #selectAddress
+        if ( $("#selectTypeAddress") == 'delivery'){
+            var destination = 
+        }
+*/
         $.ajax({
-            url: "do_order",
+            url: "/do_order",
             method:"POST",
             data: {},
             dataType: "json",
@@ -64,15 +94,19 @@ $( document ).ready(function() {
             case "manage":
                 ajax_url = "/manage-product-from-cart";
                 break;
+
+            case "do_order":
+                ajax_url = "/do_order";
+                break;
         }
 
         $.ajax({
             url: ajax_url,
             method: 'POST',
             dataType: 'json',
-            data: {restaurant_id: r_id, product_id: prod_id, number: count },
+            data: {restaurant_id: parseInt(r_id), product_id: parseInt(prod_id), number: parseInt(count) },
             success: function(response){
-                //console.log(response);
+                console.log(response);
 
                 if (response.products.length){
                     
@@ -82,7 +116,8 @@ $( document ).ready(function() {
                         html += '<li><button prod-id="" class="removeProd">Remove All</button></li>';
                     }
                     
-                    $.each(response.products, function(index,product) { console.log(product.afterDiscount);
+                    $.each(response.products, function(index,product) { 
+                        console.log(product.afterDiscount);
                         //console.log(index,product);                   
                         html+="<li><select prod-id='"+product.id+"' name='cart_count' id='cart_count'>";
                         
@@ -98,7 +133,7 @@ $( document ).ready(function() {
                         html +="</select>";
                         if (product.afterDiscount != 0){ 
                             var showPriceCart = product.afterDiscount * response.data[product.id];
-                        }else{ 
+                        }else{
                             var showPriceCart = product.price * response.data[product.id];
                         }
                         html += product.title + " ( "+ product.description +" )" + " $" + showPriceCart +"<button prod-id='"+product.id+"' class='removeProd'>x</button></li>";
@@ -114,17 +149,24 @@ $( document ).ready(function() {
                                 <option selected value='delivery'>Delivery</option>\
                             </select>\
                         </li>";
+                            
+                        html += "<li id='li_otherAddress' style='display: none;'>";
                         if ( response.otherAddress.length ){
-                            html += "<li id='li_otherAddress' style='display: none;'>\
-                            <select id='selectAddress'>";
+
+                            html+="<select id='selectAddress'>\
+                            <option value='-1'>Seleccionar otra direccion</option>";
+
                                 for ( var i = 0; i < response.otherAddress.length; i++ ){
                                     html += "<option value="+response.otherAddress[i]['id']+">"+response.otherAddress[i]['address']+"</option>";
                                 }                 
-                            html += "</select>\
-                                    </li>";    
+                            html += "</select>";
                         }
+                        html+= "<label> Agregar direccion </label>\
+                            <input type='text' id='newAddress' name='newAddress'>\
+                            </li>";    
                         
-                        html += "<li>Delivery para: " + response.mainAddress +" <button id='editAddressCart'>Editar</button></li>\
+                        
+                        html += "<li id='mainAddress'>Delivery para: <span id='spanAddress'>" + response.mainAddress +"</span><button id='editAddressCart'>Editar</button></li>\
                         <li>Horario de entrega:</li>\
                         <!-- crear horarios de restaurants y mostrar rango cada 1 hora -->\
                         <li>\
@@ -138,8 +180,8 @@ $( document ).ready(function() {
                         <li><input id='comment_order' type='textarea'></li>\
                         <li><button id='do_order'>Realizar pedido</button></li>\
                     </ul>";
-
-    
+                        $("#mainAddress").show();
+            
                 }else{
                     html = "<p>Con Hambre?</p>\
                             <p>Tu pedido esta vacio</p>\

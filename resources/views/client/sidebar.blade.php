@@ -1,17 +1,13 @@
-<div class="container">
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">Dashboard</div>
+@if(isset($last_orders))
+<div class="panel panel-default">
+    <div class="panel-heading">Last Orders</div>
 
-                <div class="panel-body">
-                    @foreach ($last_orders as $order)
-                        {{ $order->created_at }}
-                        {{ $order->restaurant->name }}
+    <div class="panel-body">
+        @foreach ($last_orders as $order)
+            {{ $order->created_at }}
+            {{ $order->restaurant->name }}
 
-                    @endforeach
-                </div>
-            </div>
-        </div>
+        @endforeach
     </div>
 </div>
+@endif

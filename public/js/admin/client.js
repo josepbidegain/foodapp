@@ -1,5 +1,16 @@
 $( document ).ready(function() {
     console.log( "ready!" );
+
+    var section = document.URL.split( '/' )[4];
+    $(".menu-item").removeClass("active");
+    $(".container").find("a."+section).addClass("active");
+
+    $(document).on("click", ".menu-item", function(){
+        $(".menu-item").removeClass("active");
+        $(this).addClass("active");
+    });
+
+
     
     $(document).on("click", '#btnShowCreateForm', function(){
         $("#createContainer").fadeIn('slow');
@@ -10,6 +21,25 @@ $( document ).ready(function() {
         $("#createContainer").hide();
         $("#btnShowCreateForm").show();
     })
+    
+    $(document).on("click", "#resetPasswordButton", function(){
+        var token =  $(document).find( 'input[name=_token]' ).val();      
+        console.log(111);
+        $.ajax({
+            method : 'POST',
+            url : '/password/email',
+            data : {email: $("#email").val() },//$("#createRestaurantForm").serialize(),
+            success : function(response){                
+
+                $("#success_reset").fadeIn().fadeOut(3000);
+               
+            },
+            error : function(response){
+                $("#error_reset").fadeIn();
+            }
+
+        });
+    });
     
 
     $.ajaxSetup({

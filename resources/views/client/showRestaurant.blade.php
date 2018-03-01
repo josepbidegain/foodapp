@@ -35,6 +35,7 @@
 		@endforeach
 	</div>
 	@endif
+	
     <div class="row">
 	<input type="hidden" id="r_id" value="{{$restaurant->id}}">
 	@foreach ($restaurant->categories as $category)
@@ -65,8 +66,4 @@
 	</div>
 	</div>
 <hr>
-
-<div id="sidebar" class="col-md-4">
-	@include('client.layouts.cart')
-</div>
 @endsection

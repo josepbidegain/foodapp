@@ -2,10 +2,6 @@
 
 @section('content')
 
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
             <div class="panel panel-default">
                 
                 <div class="panel-body">
@@ -32,6 +28,7 @@
 			                        <th><input type="text" class="form-control" placeholder="Title" disabled></th>
 			                        <th><input type="text" class="form-control" placeholder="Description" disabled></th>
 			                        <th><input type="text" class="form-control" placeholder="Price" disabled></th>                        
+			                        <th><input type="text" class="form-control" placeholder="Recomendated" disabled></th>                        
 			                        <th><input type="text" class="form-control" placeholder="Status" disabled></th>                        
 			                        <th><input type="text" class="form-control" placeholder="Actions" disabled></th>                        
 			                    </tr>
@@ -46,24 +43,41 @@
 							        <td>{{ $product->title }}</td>
 							        <td>{{ $product->description }}</td>
 							        <td>{{ $product->price }}</td>
+							        @if ($product->recomendated)
+							        <td>Yes</td>
+							        @else
+							        <td>No</td>
+							        @endif
+
 							        @if ($product->active)
 							        <td>Active</td>
 							        @else
 							        <td>Inactive</td>
 							        @endif
-							        <td>a b c</td>
+							        <td>
+							         <a href="/admin/products/{{$product->id}}/edit">
+ 										<i class='glyphicon glyphicon-edit'></i>
+ 									 </a>
+									<a href="/admin/products/{{ $product->id}}">
+ 										<i class='glyphicon glyphicon-trash'></i>
+ 									 </a>
+							        a b c</td>
 							      </tr>				      
 							    @endforeach
 
 							    </tbody>
 			            </table>
+			            
+			            <div class="pagination" style="float: right;">
+			            	{!! $products->render() !!}	
+			            </div>	
+			            
+			            
 			        </div>
 			    </div>
 
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+      
 @endsection
 

@@ -11,6 +11,10 @@
 |
 */
 
+Route::get('socket', 'SocketController@index');
+Route::post('sendmessage', 'SocketController@sendMessage');
+Route::get('writemessage', 'SocketController@writemessage');
+
 Route::get('/', function () {
 	
 	if (\Auth::check()){
@@ -42,6 +46,29 @@ Auth::routes();
 Route::get('auth/{provider}', 'Auth\SocialController@redirectToProvider');
 Route::get('auth/{provider}/callback', 'Auth\SocialController@handleProviderCallback');
 
+Route::get('testVue', 'TestController@index');
+Route::get('vue', 'TestController@vue');
+Route::get('vue-component', 'TestController@vueComponent');
+Route::get('adminlte', 'TestController@adminLte');
+
+Route::get('pusherClient', function(){
+	return view('test.pusher');
+});
+Route::get('pusherServer', function(){
+	$options = array(
+    	'encrypted' => true
+  	);
+  	//$pusher = App::make('pusher');
+  	$pusher = new Pusher(
+	    '43dde511ec5106d226b1',
+	    'bf854c62c49049407807',
+	    '347695',
+	    $options
+  	);
+
+  $data['message'] = 'hello world';
+  $pusher->trigger('my-channel', 'my-event', $data);
+});
 
 
 //clients
@@ -61,9 +88,6 @@ Route::group(['middleware' => 'client'], function () {
 	Route::get('/hola', 'ClientController@hola');
 });
 
-  Route::post('/admin/client/create', 'Admin\AdminController@insertClient');
-
-
 //admin
 Route::group(['middleware' => 'admin'], function () {
     Route::get('/admin', 'Admin\AdminController@index');
@@ -71,12 +95,14 @@ Route::group(['middleware' => 'admin'], function () {
     
     Route::get('/admin/clients', 'Admin\AdminController@clients');
     Route::post('/admin/clients/create', 'Admin\AdminController@insertClient');
-    Route::get('/admin/client/{id}', 'Admin\AdminController@editClient');
-    Route::post('/admin/client', 'Admin\AdminController@updateClient');
+    Route::get('/admin/clients/{id}/edit', 'Admin\AdminController@editClient');
+    Route::post('/admin/clients', 'Admin\AdminController@updateClient');
 
 
     Route::get('/admin/products', 'Admin\AdminController@products');
     Route::post('/admin/products/create', 'Admin\AdminController@insertProduct');
+    Route::get('/admin/products/{id}/edit', 'Admin\AdminController@editProduct');
+    Route::post('/admin/products/{id}', 'Admin\AdminController@updateProduct');
 
     Route::get('/admin/restaurants/{id}/edit', 'Admin\AdminController@editRestaurant');
     Route::post('/admin/restaurants', 'Admin\AdminController@insertRestaurant');
@@ -96,7 +122,7 @@ Route::group(['middleware' => 'admin'], function () {
 
     Route::get('/admin/orders', 'Admin\AdminController@orders');
 	
-    
+    Route::get('/admin/history', 'Admin\AdminController@getHistory');
 });
 
 //providers

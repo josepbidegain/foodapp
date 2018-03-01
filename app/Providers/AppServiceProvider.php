@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
         if ( \Auth::user() ){
             \Config::set('constants.cart_initialized', \Auth::user()->id."-cart");    
         }*/
-        
+        Schema::defaultStringLength(191);
     }
 
     /**
